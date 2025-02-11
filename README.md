@@ -6,7 +6,7 @@ Official implementation of LLaVa-Rad, introduced in ["Towards a clinically acces
 
 LLaVA-Rad can take in as input a frontal chest X-ray and optionally a reason for exam and will output the corresponding findings.
 
-**Note:** if you are interested in radiologist aligned evaluation of generated reports, we recommend you use the [CheXprompt](https://github.com/micrososft/chexprompt) codebase.
+**Note:** if you are interested in radiologist aligned evaluation of generated reports, we recommend you use the [CheXprompt](https://github.com/microsoft/chexprompt) codebase.
 
 ## Contents
 - [Introduction](#introduction)
