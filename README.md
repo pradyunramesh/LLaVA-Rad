@@ -1,6 +1,8 @@
 # 🏥 LLaVA-Rad
 [![Code License](https://img.shields.io/badge/Code%20License-Microsoft%20Research-red)](LICENSE)
-[![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](ttps://arxiv.org/abs/2403.08002)
+[![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](https://arxiv.org/abs/2403.08002)
+[![Data](https://img.shields.io/badge/PhysioNet-Data-228B22)](https://physionet.org/content/llava-rad-mimic-cxr-annotation/1.0.0/)
+[![Eval](https://img.shields.io/badge/eval-CheXprompt-purple)](https://physionet.org/content/llava-rad-mimic-cxr-annotation/1.0.0/)
 
 ## Introduction
 
