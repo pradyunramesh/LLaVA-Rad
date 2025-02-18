@@ -1,4 +1,6 @@
 # 🏥 LLaVA-Rad
+[![Code License](https://img.shields.io/badge/Code%20License-Microsoft%20Research-red)](LICENSE)
+[![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](ttps://arxiv.org/abs/2403.08002)
 
 ## Introduction
 
@@ -19,6 +21,7 @@ LLaVA-Rad can take in as input a frontal chest X-ray and optionally a reason for
 - [Inference](#inference)
 - [Evaluation](#evaluation)
 - [Citation](#citation)
+- [License and Usage Notices](#license-and-usage-notices)
 - [Acknowledgements](#acknowledgements)
 
 
@@ -100,6 +103,10 @@ Before running the command below, you need to change the script accordingly.
 bash scripts/eval.sh
 ```
 
+**Note:** To reproduce the evaluation results from the manuscript on the MIMIC-CXR dataset, changing the script means uncommenting and updating the paths for `query_file` and `image_folder`.
+
+In the manuscript, the Open-I and CheXpert chest X-ray images and reports are also used for evaluation. These datasets are available at their corresponding sources: [Open-I](https://openi.nlm.nih.gov/faq) | [CheXpert](https://stanfordaimi.azurewebsites.net/datasets/5158c524-d3ab-4e02-96e9-6ee9efc110a1).
+
 ## Evaluation
 
 If you have run inference using multiple GPUs and have a resulting set of chunks with results, make sure you concatenate prediction chunks into a single file before running the following command:
@@ -122,6 +129,9 @@ python run.py ${YOUR_PREDICTION_FILE}
 
 ```
 
+## License and Usage Notices
+
+The data, code, and model checkpoints are licensed and intended for research use only. The code and model checkpoints are subject to additional restrictions as determined by the Terms of Use of LLaMA, Vicuna, and GPT-4 respectively. Code and model checkpoints may be used for research purposes and should not be used in direct clinical care or for any clinical decision making purpose.
 
 ## Acknowledgements
 
