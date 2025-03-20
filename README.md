@@ -1,8 +1,12 @@
 # 🏥 LLaVA-Rad
 [![Code License](https://img.shields.io/badge/Code%20License-Microsoft%20Research-red)](LICENSE)
-[![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](https://arxiv.org/abs/2403.08002)
+
 [![Data](https://img.shields.io/badge/PhysioNet-Data-228B22)](https://physionet.org/content/llava-rad-mimic-cxr-annotation/1.0.0/)
+[![🤗](https://img.shields.io/badge/🤗-Model-FFA500)](https://huggingface.co/microsoft/llava-rad/)
 [![Eval](https://img.shields.io/badge/eval-CheXprompt-purple)](https://physionet.org/content/llava-rad-mimic-cxr-annotation/1.0.0/)
+
+[![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](https://arxiv.org/abs/2403.08002)
+[![Peer Reviewed Paper](https://img.shields.io/badge/Peer%20Reviewed%20Paper-In%20Press-cyan)]()
 
 ## Introduction
 
