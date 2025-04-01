@@ -6,11 +6,11 @@
 [![Eval](https://img.shields.io/badge/eval-CheXprompt-purple)](https://github.com/microsoft/chexprompt/)
 
 [![Preprint](https://img.shields.io/badge/arXiv-Preprint-blue)](https://arxiv.org/abs/2403.08002)
-[![Peer Reviewed Paper](https://img.shields.io/badge/Peer%20Reviewed%20Paper-In%20Press-cyan)]()
+[![Peer Reviewed Paper](https://img.shields.io/badge/Peer%20Reviewed%20Paper-Nature%20Communications-cyan)](https://doi.org/10.1038/s41467-025-58344-x)
 
 ## Introduction
 
-Official implementation of LLaVa-Rad, introduced in ["Towards a clinically accessible radiology multimodal model: open-access and lightweight, with automatic evaluation"](https://arxiv.org/abs/2403.08002).
+Official implementation of LLaVa-Rad, introduced in ["A clinically accessible small multimodal radiology model and evaluation metric for chest X-ray findings"](https://doi.org/10.1038/s41467-025-58344-x).
 
 LLaVA-Rad can take in as input a frontal chest X-ray and optionally a reason for exam and will output the corresponding findings.
 
@@ -125,12 +125,19 @@ python run.py ${YOUR_PREDICTION_FILE}
 
 ```bibtex
 
-@article{zambranochaves2024llavarad,
-  title = {Towards a clinically accessible radiology foundation model: open-access and lightweight, with automated evaluation},
-  author = {Zambrano Chaves, JM and Huang, S-C and Xu, Y and Xu, H and Usuyama, N and Zhang, S, et al.},
-  journal = {arXiv preprint arXiv:2403.08002},
-  year = {2024},
-  url = {https://arxiv.org/pdf/2403.08002}
+@Article{ZambranoChaves2025,
+author={Zambrano Chaves, Juan Manuel and Huang, Shih-Cheng and Xu, Yanbo and Xu, Hanwen and Usuyama, Naoto and Zhang, Sheng and Wang, Fei and Xie, Yujia and Khademi, Mahmoud and Yang, Ziyi and Awadalla, Hany and Gong, Julia and Hu, Houdong and Yang, Jianwei and Li, Chunyuan and Gao, Jianfeng and Gu, Yu and Wong, Cliff and Wei, Mu and Naumann, Tristan and Chen, Muhao and Lungren, Matthew P. and Chaudhari, Akshay and Yeung-Levy, Serena and Langlotz, Curtis P. and Wang, Sheng and Poon, Hoifung},
+title={A clinically accessible small multimodal radiology model and evaluation metric for chest X-ray findings},
+journal={Nature Communications},
+year={2025},
+month={Apr},
+day={01},
+volume={16},
+number={1},
+pages={3108},
+issn={2041-1723},
+doi={10.1038/s41467-025-58344-x},
+url={https://doi.org/10.1038/s41467-025-58344-x}
 }
 
 ```
