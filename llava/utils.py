@@ -6,8 +6,9 @@ import sys
 import json
 
 import requests
+import pandas as pd
 
-from llava.constants import LOGDIR
+#from llava.constants import LOGDIR
 
 server_error_msg = "**NETWORK ERROR DUE TO HIGH TRAFFIC. PLEASE REGENERATE OR REFRESH THIS PAGE.**"
 moderation_msg = "YOUR INPUT VIOLATES OUR CONTENT MODERATION GUIDELINES. PLEASE TRY AGAIN."
@@ -189,6 +190,20 @@ def data_loader_mimic_reason_findings(data_path, split):
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
     return ret
 
+def data_loader_chexpert_reason_findings_impressions(data_path, split):
+    logging.info(f"using the CheXpert loader: CheXpert {split}.")
+    dataset = pd.read_json(data_path, lines=True)
+    ret = []
+    for i, row in dataset.iterrows():
+        if row['split'] != split:
+            continue
+        if row["conversations"][1]["value"] is None:
+            continue
+        row['findings'] = str(row['findings']) + str(row['impressions'])
+        ret.append(row)
+    logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
+    return ret
+
 
 data_loaders = {
     "default": data_loader_default,
@@ -196,4 +211,7 @@ data_loaders = {
     "mimic_test_findings": lambda x: data_loader_mimic_reason_findings(x, "test"),
     "mimic_cxr_all_frontal_findings": data_loader_mimic_cxr_all_frontal_findings,
     "mimic_cxr_all_views_findings": data_loader_mimic_cxr_all_views_findings,
+    "chexpert_train_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "train"),
 }
+
+data_loader_chexpert_reason_findings_impressions("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl", "train")

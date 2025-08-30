@@ -43,19 +43,20 @@ df['conversations'] = df.apply(create_conversations_list, axis=1)
 print("Number of null findings: ", df['section_findings'].isnull().sum())
 print("Number of null impressions: ", df['section_impression'].isnull().sum())
 print("Length of chexpert data after preprocessing: ", len(df))
+print(df['split'].value_counts())
 
 def process_input_json_file(df_row):
     '''Method to process the input data file for the chexpert generate_method'''
-    input_row = f'''
-    reason: {df_row['section_indication']},
-    findings: {df_row['section_findings']},
-    impressions: {df_row['section_impression']},
-    image: {df_row['path_to_image']},
-    generate_method: 'chexpert',
-    chexpert_labels: {df_row['chexpert_labels']},
-    split: {df_row['split']},
-    conversations: {df_row['conversations']}
-    '''
+    input_row = {
+        'reason': df_row['section_indication'],
+        'findings': df_row['section_findings'],
+        'impressions': df_row['section_impression'],
+        'image': df_row['path_to_image'],
+        'generate_method': 'chexpert',
+        'chexpert_labels': df_row['chexpert_labels'],
+        'split': df_row['split'],
+        'conversations': df_row['conversations']
+    }
     return input_row
 
 def process_gpt_file():
@@ -85,6 +86,7 @@ def process_gpt_file():
     print(f"Number of json files processed: {counter}")
     print(input_json_df.head())
 
+#Delete existing data.jsonl file if it exists - Append mode is used to write the processed data
 with open("data.jsonl", "a") as f:
     for index, row in df.iterrows():
         prompt = process_input_json_file(row)
