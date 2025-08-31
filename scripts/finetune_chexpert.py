@@ -40,6 +40,7 @@ df['chexpert_labels'] = df.apply(create_labels_dict, axis=1)
 df['conversations'] = df.apply(create_conversations_list, axis=1)
 
 # Printing out some useful metrics
+print(df['path_to_image'].head())
 print("Number of null findings: ", df['section_findings'].isnull().sum())
 print("Number of null impressions: ", df['section_impression'].isnull().sum())
 print("Length of chexpert data after preprocessing: ", len(df))
