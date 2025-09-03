@@ -5,28 +5,26 @@
 model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
-# data_path=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
+loader="chexpert_train_findings_impressions"
 
-loader="mimic_train_findings"
-
-# image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
-
-''' Arguments
-model_base: Base-model to be fine-tuned, set to vicuna-7b-v1.5 by default.
-data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
-loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
-image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
-vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
-vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
-vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
-output_dir: Directory to save the fine-tuned model checkpoints. Set by default to the ./checkpoints folder in the current directory.
-epoch: Number of training epochs, set to 3 by default.
-bsz: Batch size per GPU, set to 16 by default.
-lr: Learning rate, set to 1e-4 by default.
-grad_acc: Gradient accumulation steps, set to 2 by default. Model weights are updated after every other batch.
-run_name: Name of the training run, automatically generated based on parameters and timestamp.
-dataloader_num_workers: Change as per number of GPUs available. Set to 4 for the new server.
-'''
+# Arguments
+# model_base: Base-model to be fine-tuned, set to vicuna-7b-v1.5 by default.
+# data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+# loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
+# image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
+# vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
+# vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
+# vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
+# output_dir: Directory to save the fine-tuned model checkpoints. Set by default to the ./checkpoints folder in the current directory.
+# epoch: Number of training epochs, set to 3 by default.
+# bsz: Batch size per GPU, set to 16 by default.
+# lr: Learning rate, set to 1e-4 by default.
+# grad_acc: Gradient accumulation steps, set to 2 by default. Model weights are updated after every other batch.
+# run_name: Name of the training run, automatically generated based on parameters and timestamp.
+# dataloader_num_workers: Change as per number of GPUs available. Set to 4 for the new server.
+# 
 
 ################## Run name ##################
 vision_tower="biomedclip_cxr_518"
@@ -44,7 +42,7 @@ echo $run_name > run_name
 
 # Global batch size should be 256
 
-WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava" WANDB_RUN_GROUP=pre-train \
+WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_GROUP=pre-train \
     deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
     --model_name_or_path ${model_base} \
