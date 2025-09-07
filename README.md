@@ -84,7 +84,7 @@ You can find the pretrained model weights for BiomedCLIP-CXR and LLaVA-Rad at ht
 
 **Notes before proceeding:** 
 - Change the paths in the scripts below according to where you downloaded the data.
-- Batch size is set for 4-GPU machines. If your machine has a difference number of GPUs, please change batch size. Training commands have been tested on a single 80GB A100 and 4x80GB H100, using torch 2.4.1 and cuda 11.8 with flash attention 2.7.2.post1.
+- Batch size is set for 4-GPU machines. If your machine has a difference number of GPUs, please change batch size. Training commands have been tested on a single 80GB A100 and 4x80GB H100, using torch 2.0.1+cu118, torchvision 0.15.2+cu118 and cuda 11.8 with flash attention 2.4.2.
 
 ### 1. Pretrain (Alignment)
 At this stage, we only train the projection layer (which aligns the vision features with text features). The vision encoder and LLM are all frozen.
