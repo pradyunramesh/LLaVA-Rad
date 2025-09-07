@@ -4,11 +4,10 @@
 
 ################## VICUNA ##################
 PROMPT_VERSION=v1
-
 model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
-# PROJECTOR="/PATH_TO/mm_projector.bin" # generated using pretrain.sh
+# PROJECTOR="/PATH_TO/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
 vision_tower="biomedclip_cxr_518"
 vision_tower_config="llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json"
 vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
@@ -16,9 +15,9 @@ vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
 
 
 ################## Data ##################
-# data_path=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
-loader="mimic_train_findings"
-# image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
+data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
+loader="chexpert_train_findings_impressions"
 ################## Data ##################
 
 ################## Run name ##################
@@ -30,25 +29,25 @@ export run_name="${vision_tower}-${schedule}-${lr}-$(date +%Y%m%d%H%M%S)"
 echo $run_name > run_name
 ################## Run name ##################
 
-''' Arguments
-model_base: Base-model to be fine-tuned, set to vicuna-7b-v1.5 by default.
-data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
-loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
-image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
-vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
-vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
-vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
-PROJECTOR: Path to the pretrained mm_projector generated from pretrain.sh
-output_dir: Directory to save the fine-tuned model checkpoints.
-epoch: Number of training epochs, set to 3 by default.
-bsz: Batch size per GPU, set to 16 by default.
-lr: Learning rate, set to 1e-4 by default.
-run_name: Name of the training run, automatically generated based on parameters and timestamp.
-dataloader_num_workers: Change as per number of GPUs available. Set to 4 for the new server.
-'''
+# ''' Arguments
+# model_base: Base-model to be fine-tuned, set to vicuna-7b-v1.5 by default.
+# data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+# loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
+# image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
+# vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
+# vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
+# vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
+# PROJECTOR: Path to the pretrained mm_projector generated from pretrain.sh. It doesn't look like we use the pretrained projector here.
+# output_dir: Directory to save the fine-tuned model checkpoints.
+# epoch: Number of training epochs, set to 3 by default.
+# bsz: Batch size per GPU, set to 16 by default.
+# lr: Learning rate, set to 1e-4 by default.
+# run_name: Name of the training run, automatically generated based on parameters and timestamp.
+# dataloader_num_workers: Change as per number of GPUs available. Set to 4 for the new server.
+# '''
 
 # Batch size is set for 4-GPU machines.
-WANDB_PROJECT="llava" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=fine-tune \
+WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=fine-tune \
     deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
     --lora_enable True \

@@ -18,9 +18,9 @@ loader="chexpert_train_findings_impressions"
 # vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # output_dir: Directory to save the fine-tuned model checkpoints. Set by default to the ./checkpoints folder in the current directory.
-# epoch: Number of training epochs, set to 3 by default.
-# bsz: Batch size per GPU, set to 16 by default.
-# lr: Learning rate, set to 1e-4 by default.
+# epoch: Number of training epochs, set to 1 by default.
+# bsz: Batch size per GPU, set to 32 by default. Set to 8 to reduce memory issues
+# lr: Learning rate, set to 1e-3 by default.
 # grad_acc: Gradient accumulation steps, set to 2 by default. Model weights are updated after every other batch.
 # run_name: Name of the training run, automatically generated based on parameters and timestamp.
 # dataloader_num_workers: Change as per number of GPUs available. Set to 4 for the new server.

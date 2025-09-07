@@ -12,9 +12,14 @@ def create_labels_dict(row):
 
 def create_conversations_list(row):
     conversations = []
-    dict_findings = {"from": "gpt", "value": str(row['section_findings']) + str(row['section_impression'])}
+    output = ""
+    if row['section_findings'] and row['section_findings'] != 'nan':
+        output = output + str(row['section_findings']).replace("\n", "").strip() + " "
+    if row['section_impression'] and row['section_impression'] != 'nan':
+        output = output + str(row['section_impression']).replace("\n", "").strip()
+    dict_findings = {"from": "gpt", "value": output}
     if row['section_indication'] is not None:
-        reason = row['section_indication'].replace('\n', ' ')
+        reason = row['section_indication'].replace('\n', '')
         dict_reason = {"from": "human", "value": f"<image>\nProvide a description of the findings in the radiology image given the following indication: {reason}"}
     else:
         dict_reason = {"from": "human", "value": "<image>\nProvide a description of the findings in the radiology image."}

@@ -199,11 +199,9 @@ def data_loader_chexpert_reason_findings_impressions(data_path, split):
             continue
         if row["conversations"][1]["value"] is None:
             continue
-        row['findings'] = str(row['findings']) + str(row['impressions'])
         ret.append(row)
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
     return ret
-
 
 data_loaders = {
     "default": data_loader_default,
