@@ -7,7 +7,7 @@ PROMPT_VERSION=v1
 model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
-# PROJECTOR="/PATH_TO/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
+PROJECTOR="/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-pt-1e-1e-3-20250907160427/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
 vision_tower="biomedclip_cxr_518"
 vision_tower_config="llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json"
 vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
@@ -52,7 +52,7 @@ WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S
     --deepspeed ./scripts/zero2.json \
     --lora_enable True \
     --lora_alpha 128 \
-    --model_name_or_path ${model_base} \ 
+    --model_name_or_path ${model_base} \
     --version $PROMPT_VERSION \
     --data_path ${data_path} \
     --loader ${loader} \
@@ -84,6 +84,6 @@ WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S
     --model_max_length 2048 \
     --gradient_checkpointing True \
     --lazy_preprocess True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers 2 \
     --report_to wandb \
     --run_name ${run_name}

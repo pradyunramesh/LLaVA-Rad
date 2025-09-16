@@ -76,7 +76,7 @@ WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava-rad-finetunin
     --tf32 True \
     --model_max_length 2048 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers 2 \
     --lazy_preprocess True \
     --report_to wandb \
     --run_name ${run_name}

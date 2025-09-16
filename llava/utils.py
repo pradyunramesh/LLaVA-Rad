@@ -8,7 +8,7 @@ import json
 import requests
 import pandas as pd
 
-#from llava.constants import LOGDIR
+from llava.constants import LOGDIR
 
 server_error_msg = "**NETWORK ERROR DUE TO HIGH TRAFFIC. PLEASE REGENERATE OR REFRESH THIS PAGE.**"
 moderation_msg = "YOUR INPUT VIOLATES OUR CONTENT MODERATION GUIDELINES. PLEASE TRY AGAIN."
@@ -210,6 +210,7 @@ data_loaders = {
     "mimic_cxr_all_frontal_findings": data_loader_mimic_cxr_all_frontal_findings,
     "mimic_cxr_all_views_findings": data_loader_mimic_cxr_all_views_findings,
     "chexpert_train_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "train"),
+    "chexpert_test_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "test"),
 }
 
 data_loader_chexpert_reason_findings_impressions("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl", "train")

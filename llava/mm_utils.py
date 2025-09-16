@@ -71,6 +71,8 @@ def get_model_name_from_path(model_path):
         return model_paths[-2] + "_" + model_paths[-1]
     elif model_paths[-1].startswith('llava-rad'):
         return 'llavarad'
+    elif model_paths[-1].startswith('biomedclip'):
+        return 'llavarad'
     else:
         return model_paths[-1]
 

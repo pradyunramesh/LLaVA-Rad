@@ -4,7 +4,8 @@ set -e
 set -o pipefail
 
 model_base=lmsys/vicuna-7b-v1.5
-model_path=microsoft/llava-rad
+#model_path=microsoft/llava-rad
+model_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-lora-3e-1e-4-20250907223658
 
 model_base="${1:-$model_base}"
 model_path="${2:-$model_path}"
@@ -14,14 +15,14 @@ prediction_file=$prediction_dir/test
 run_name="${4:-llavarad}"
 
 
-# query_file=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+query_file=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
 
-# image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
-loader="mimic_test_findings"
+image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
+loader="chexpert_test_findings_impressions"
 conv_mode="v1"
 
-CHUNKS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
-
+#CHUNKS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
+CHUNKS=1
 for (( idx=0; idx<$CHUNKS; idx++ ))
 do
     CUDA_VISIBLE_DEVICES=$idx python -m llava.eval.model_mimic_cxr \
@@ -41,11 +42,11 @@ done
 
 wait
 
-cat ${prediction_file}_*.jsonl > mimic_cxr_preds.jsonl
+cat ${prediction_file}_*.jsonl > chexpert_preds.jsonl
 
 pushd llava/eval/rrg_eval
-WANDB_PROJECT="llava" WANDB_RUN_ID="llava-eval-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=evaluate CUDA_VISIBLE_DEVICES=0 \
-    python run.py ../../../mimic_cxr_preds.jsonl --run_name ${run_name} --output_dir ../../../${prediction_dir}/eval
+WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-eval-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=evaluate CUDA_VISIBLE_DEVICES=0 \
+    python run.py ../../../chexpert_preds.jsonl --run_name ${run_name} --output_dir ../../../${prediction_dir}/eval
 popd
 
-rm mimic_cxr_preds.jsonl
+rm chexpert_preds.jsonl

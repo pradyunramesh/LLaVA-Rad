@@ -74,7 +74,7 @@ def eval_model(
         group_by_length: bool = False,
     ):
     os.makedirs("logs", exist_ok=True)
-    logger = build_logger("model_mimic_cxr", f"logs/model_mimic_cxr_{chunk_idx}.log")
+    logger = build_logger("model_chexpert", f"logs/model_chexpert_{chunk_idx}.log")
 
 
 
@@ -158,13 +158,13 @@ def eval_model(
                 outputs = outputs[:-len(stop_str)]
             outputs = outputs.strip()
             if log_prediction:
-                logger.info(f"id: {query['id']}")
+                logger.info(f"image: {query['image']}")
                 logger.info(f"query: {repr(q)}")
                 logger.info(f"prompt: {repr(prompt)}")
                 logger.info(f"reference: {repr(ref)}")
                 logger.info(f"prediction: {repr(outputs)}")
 
-            pred_file.write(json.dumps({"id": query["id"], "query": q, "reference": ref, "prediction": outputs}) + "\n")
+            pred_file.write(json.dumps({"image": query["image"], "query": q, "reference": ref, "prediction": outputs}) + "\n")
             pred_file.flush()
         
         log_prediction = False
