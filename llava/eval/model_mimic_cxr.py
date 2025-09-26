@@ -15,7 +15,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 from llava.conversation import conv_templates, SeparatorStyle
 from llava.utils import build_logger, disable_torch_init, data_loaders
 from llava.model.builder import load_pretrained_model
-from llava.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria
+from llava.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria, tokenizer_cross_val_loss
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 
 
@@ -64,7 +64,7 @@ def eval_model(
         load_8bit: bool = False,
         load_4bit: bool = False,
         device: str = "cuda",
-        temperature: float = 0.2,
+        temperature: float = 0,
         top_p: float = None,
         num_beams: int = 1,
         chunk_idx: int = 0,
@@ -76,8 +76,20 @@ def eval_model(
     os.makedirs("logs", exist_ok=True)
     logger = build_logger("model_chexpert", f"logs/model_chexpert_{chunk_idx}.log")
 
-
-
+    # Set random seeds and deterministic flags for all possible sources of randomness
+    torch.manual_seed(42)
+    torch.cuda.manual_seed_all(42)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True)  # Enable deterministic algorithms
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"  # Set CUDA environment for determinism
+    
+    # Ensure CPU operations are also deterministic
+    import random
+    import numpy as np
+    random.seed(42)
+    np.random.seed(42)
+    
     # load model
     disable_torch_init()
     model_path = os.path.expanduser(model_path)
@@ -104,9 +116,10 @@ def eval_model(
         batch_prompts = []
         batch_input_ids = []
         batch_images = []
+        batch_losses = []
+
         for query in batch_queries:
             q = query["conversations"][0]["value"]
-
             q = q.replace("<image>", "").strip()
             if model.config.mm_use_im_start_end:
                 q = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + q
@@ -117,27 +130,40 @@ def eval_model(
             conv.append_message(conv.roles[0], q)
             conv.append_message(conv.roles[1], None)
             prompt = conv.get_prompt()
+            label = query["conversations"][1]["value"]
 
             input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt")
+            input_ids_loss, label_loss = tokenizer_cross_val_loss(prompt, label, tokenizer, IMAGE_TOKEN_INDEX)
 
             image = Image.open(os.path.join(image_folder, query["image"])).convert("RGB")
             image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'][0]
+            with torch.inference_mode():
+                output_eval = model(
+                    input_ids_loss.unsqueeze(0).cuda(),
+                    images=image_tensor.unsqueeze(0).half().cuda(),
+                    labels=label_loss.unsqueeze(0).cuda()
+                )
+                batch_losses.append(output_eval.loss.item())
 
             batch_prompts.append(prompt)
             batch_input_ids.append(input_ids)
             batch_images.append(image_tensor)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-        
 
         with torch.inference_mode():
+            # Ensure inputs are deterministically processed
+            input_ids_tensor = torch.stack(batch_input_ids).cuda()
+            images_tensor = torch.stack(batch_images).half().cuda()
+            
+            # Set generation configs for complete determinism
             batch_output_ids = model.generate(
-                torch.stack(batch_input_ids).cuda(),
-                images=torch.stack(batch_images).half().cuda(),
-                do_sample=True if temperature > 0 else False,
-                temperature=temperature,
-                top_p=top_p,
-                num_beams=num_beams,
+                input_ids_tensor,
+                images=images_tensor,
+                do_sample=False,
+                temperature=0,
+                top_p=None,
+                num_beams=1,
                 max_new_tokens=256,
                 use_cache=True).cpu()
 
@@ -145,8 +171,8 @@ def eval_model(
                 batch_output_ids[:, len(batch_input_ids[0]):], skip_special_tokens=True
             )
 
-        for query, prompt, outputs, input_ids, output_ids in zip(
-            batch_queries, batch_prompts, batch_outputs, batch_input_ids, batch_output_ids):
+        for query, prompt, outputs, input_ids, output_ids, loss in zip(
+            batch_queries, batch_prompts, batch_outputs, batch_input_ids, batch_output_ids, batch_losses):
             q = query["conversations"][0]["value"]
             ref = query["conversations"][1]["value"]
             input_token_len = input_ids.shape[0]
@@ -164,7 +190,7 @@ def eval_model(
                 logger.info(f"reference: {repr(ref)}")
                 logger.info(f"prediction: {repr(outputs)}")
 
-            pred_file.write(json.dumps({"image": query["image"], "query": q, "reference": ref, "prediction": outputs}) + "\n")
+            pred_file.write(json.dumps({"image": query["image"], "query": q, "reference": ref, "prediction": outputs, "generation loss": loss}) + "\n")
             pred_file.flush()
         
         log_prediction = False

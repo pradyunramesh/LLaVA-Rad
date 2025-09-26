@@ -63,6 +63,13 @@ def tokenizer_image_token(prompt, tokenizer, image_token_index=IMAGE_TOKEN_INDEX
         raise ValueError(f'Unsupported tensor type: {return_tensors}')
     return input_ids
 
+def tokenizer_cross_val_loss(prompt, ground_truth, tokenizer, image_token_index=IMAGE_TOKEN_INDEX):
+    prompt_ids = tokenizer_image_token(prompt, tokenizer, image_token_index=image_token_index, return_tensors='pt')
+    gt_ids = tokenizer(ground_truth, return_tensors='pt').input_ids.reshape(-1)
+    input_ids = torch.cat([prompt_ids, gt_ids], dim=-1)
+    labels = torch.cat([torch.full_like(prompt_ids, -100), gt_ids], dim=-1)
+    return input_ids, labels
+
 
 def get_model_name_from_path(model_path):
     model_path = model_path.strip("/")
