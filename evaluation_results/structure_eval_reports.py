@@ -2,14 +2,14 @@ import pandas as pd
 import json
 
 # Define file paths for the base location
-# input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/predictions.jsonl'
-# generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/generated_reports.csv'
-# ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/ground_truth.csv'
+input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/predictions.jsonl'
+generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/generated_reports.csv'
+ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/ground_truth.csv'
 
 #Define file paths for the fine-tuned location
-input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/predictions.jsonl'
-generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/generated_reports.csv'
-ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/ground_truth.csv'
+# input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/predictions.jsonl'
+# generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/generated_reports.csv'
+# ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/ground_truth.csv'
 
 generated_records = []
 ground_truth_records = []
@@ -19,7 +19,8 @@ with open(input_file, 'r') as f:
         generated_records.append({
             'study_id': i,
             "path_to_image": d['image'],
-            "report": d['prediction']
+            "report": d['prediction'], 
+            "loss": d['generation loss']
         })
         ground_truth_records.append({
             'study_id': i,
