@@ -43,7 +43,7 @@ def llava_evaluation(model_type):
     print(chexpert_reports['loss'].isna().sum())
     return chexpert_reports
 
-def evaluate_f1_score(model_type):
+def evaluate_f1_score(model_type, metrics):
     '''
     Method to evaluate the F1 score for the labeled CheXpert reports
     '''
@@ -58,16 +58,17 @@ def evaluate_f1_score(model_type):
     score = f1_score(y_true, y_label, average = 'macro')
     logger.info(f"F1 score for all columns: {score}")
 
-    metrics = ["loss"]
     for metric in metrics:
-        if model_type == "base":
-            evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
-        else:
-            evaluate_race_condition_table(test_chexpert_reports, model_type, metric)
-        # evaluate_age_condition_table(test_chexpert_reports, model_type, metric)
-            evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
-        # evaluate_race_sex_condition_table(test_chexpert_reports, model_type)
-        # evaluate_race_age_condition_table(test_chexpert_reports, model_type)
+        evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
+        evaluate_race_condition_table(test_chexpert_reports, model_type, metric)
+        evaluate_age_condition_table(test_chexpert_reports, model_type, metric)
+        evaluate_race_sex_condition_table(test_chexpert_reports, model_type)
+        evaluate_race_age_condition_table(test_chexpert_reports, model_type)
 
-evaluate_f1_score("base")
-evaluate_f1_score("finetuned")
+metrics = ["loss"]
+evaluate_f1_score("base", metrics)
+evaluate_f1_score("finetuned", metrics)
+
+metrics = ["f1"]
+evaluate_f1_score("base", metrics)
+evaluate_f1_score("finetuned", metrics)

@@ -58,6 +58,8 @@ def calculate_metric(df, metric, original_columns, labeled_columns):
 
 def evaluate_race_condition_table(test_chexpert_reports, model_type, metric):
     # Calculate table for race vs condition
+    if metric == "loss":
+        labeled_columns = ['N/A']
     race_condition_df = pd.DataFrame(columns = ['Condition', 'Race 1', 'Race 2', f'Race 1: {metric}', f'Race 2: {metric}', f'P-Value {metric}', 
     f'Statistical Significance {metric}'])
     for col in range(len(labeled_columns)):
@@ -107,6 +109,8 @@ def evaluate_race_condition_table(test_chexpert_reports, model_type, metric):
 
 def evaluate_sex_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for sex vs condition
+    if metric == "loss":
+        labeled_columns = ['N/A']
     sex_condition_df = pd.DataFrame(columns = ['Condition', 'Sex 1', 'Sex 2', f'Sex 1: {metric}', f'Sex 2: {metric}', f'P-Value {metric}', 
     f'Statistical Significance {metric}'])
     for col in range(len(labeled_columns)):
@@ -157,6 +161,8 @@ def evaluate_sex_condition_table(test_chexpert_reports, model_type, metric):
 
 def evaluate_age_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for age vs condition
+    if metric == "loss":
+        labeled_columns = ['N/A']
     age_condition_df = pd.DataFrame(columns = ['Condition', 'Age 1', 'Age 2', f'Age 1: {metric}', f'Age 2: {metric}', f'P-Value {metric}', 
     f'Statistical Significance {metric}'])
     for col in range(len(labeled_columns)):
@@ -206,6 +212,8 @@ def evaluate_age_condition_table(test_chexpert_reports, model_type, metric):
 
 def evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for race vs sex vs condition
+    if metric == "loss":
+        labeled_columns = ['N/A']
     race_sex_condition_df = pd.DataFrame(columns=[
         'Condition', 'Group 1', 'Group 2',
         f'Group 1: {metric}', f'Group 2: {metric}', f'P-Value {metric}', f'Statistical Significance {metric}',
@@ -264,6 +272,8 @@ def evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric)
 
 def evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for race vs age vs condition
+    if metric == "loss":
+        labeled_columns = ['N/A']
     race_age_condition_df = pd.DataFrame(columns=[
         'Condition', 'Group 1', 'Group 2',
         f'Group 1: {metric}', f'Group 2: {metric}', f'P-Value {metric}', f'Statistical Significance {metric}'
