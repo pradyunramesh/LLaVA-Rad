@@ -1,0 +1,11 @@
+,Condition,Age 1,Age 2,Age 1: loss,Age 2: loss,P-Value loss,Statistical Significance loss
+0,No Finding,anchor_age_0.0,anchor_age_1.0,1.8923856637773722,1.9654213145231847,0.0139,anchor_age_1.0 has a significantly higher loss score than anchor_age_0.0
+1,No Finding,anchor_age_0.0,anchor_age_2.0,1.8923856637773722,1.968728998655914,0.0039,anchor_age_2.0 has a significantly higher loss score than anchor_age_0.0
+2,No Finding,anchor_age_0.0,anchor_age_3.0,1.8923856637773722,1.950166682064548,0.0146,anchor_age_3.0 has a significantly higher loss score than anchor_age_0.0
+3,No Finding,anchor_age_0.0,anchor_age_4.0,1.8923856637773722,1.9619881387521714,0.0075,anchor_age_4.0 has a significantly higher loss score than anchor_age_0.0
+4,No Finding,anchor_age_1.0,anchor_age_2.0,1.9654213145231847,1.968728998655914,0.4372,No statistical significance for loss score
+5,No Finding,anchor_age_1.0,anchor_age_3.0,1.9654213145231847,1.950166682064548,0.294,No statistical significance for loss score
+6,No Finding,anchor_age_1.0,anchor_age_4.0,1.9654213145231847,1.9619881387521714,0.4666,No statistical significance for loss score
+7,No Finding,anchor_age_2.0,anchor_age_3.0,1.968728998655914,1.950166682064548,0.1475,No statistical significance for loss score
+8,No Finding,anchor_age_2.0,anchor_age_4.0,1.968728998655914,1.9619881387521714,0.3723,No statistical significance for loss score
+9,No Finding,anchor_age_3.0,anchor_age_4.0,1.950166682064548,1.9619881387521714,0.2577,No statistical significance for loss score
