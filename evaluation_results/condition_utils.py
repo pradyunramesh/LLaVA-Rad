@@ -59,7 +59,7 @@ def calculate_metric(df, metric, original_columns, labeled_columns):
 def evaluate_race_condition_table(test_chexpert_reports, model_type, metric):
     # Calculate table for race vs condition
     if metric == "loss":
-        labeled_columns = ['NA']
+        labeled_columns = ['No Finding_Labeled']  # Dummy column to avoid empty list
     else:
         labeled_columns = [col + '_Labeled' for col in original_columns]
     race_condition_df = pd.DataFrame(columns = ['Condition', 'Race 1', 'Race 2', f'Race 1: {metric}', f'Race 2: {metric}', f'P-Value {metric}', 
@@ -105,14 +105,14 @@ def evaluate_race_condition_table(test_chexpert_reports, model_type, metric):
             }])
             race_condition_df = pd.concat([race_condition_df, new_data], ignore_index=True)
     if model_type == "base":
-        race_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/eval/{metric}_scores/race_condition_{metric}.csv')
+        race_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/eval/f1_scores/race_condition_{metric}.csv')
     elif model_type == "finetuned":
-        race_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/eval/{metric}_scores/race_condition_{metric}.csv')
+        race_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/f1_scores/race_condition_{metric}.csv')
 
 def evaluate_sex_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for sex vs condition
     if metric == "loss":
-        labeled_columns = ['NA']
+        labeled_columns = ['No Finding_Labeled']  # Dummy column to avoid empty list
     else:
         labeled_columns = [col + '_Labeled' for col in original_columns]
     sex_condition_df = pd.DataFrame(columns = ['Condition', 'Sex 1', 'Sex 2', f'Sex 1: {metric}', f'Sex 2: {metric}', f'P-Value {metric}', 
@@ -159,14 +159,14 @@ def evaluate_sex_condition_table(test_chexpert_reports, model_type, metric):
             }])
             sex_condition_df = pd.concat([sex_condition_df, new_data], ignore_index=True)
     if model_type == "base":
-        sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/eval/{metric}_scores/sex_condition_{metric}.csv')
+        sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/eval/f1_scores/sex_condition_{metric}.csv')
     elif model_type == "finetuned":
-        sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/eval/{metric}_scores/sex_condition_{metric}.csv')
+        sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/f1_scores/sex_condition_{metric}.csv')
 
 def evaluate_age_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for age vs condition
     if metric == "loss":
-        labeled_columns = ['NA']
+        labeled_columns = ['No Finding_Labeled']  # Dummy column to avoid empty list
     else:
         labeled_columns = [col + '_Labeled' for col in original_columns]
     age_condition_df = pd.DataFrame(columns = ['Condition', 'Age 1', 'Age 2', f'Age 1: {metric}', f'Age 2: {metric}', f'P-Value {metric}', 
@@ -212,14 +212,14 @@ def evaluate_age_condition_table(test_chexpert_reports, model_type, metric):
             }])
             age_condition_df = pd.concat([age_condition_df, new_data], ignore_index=True)
     if model_type == "base":
-        age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/eval/f1_scores/age_condition_{metric}.csv')
+        age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/eval/f1_scores/age_condition_{metric}.csv')
     elif model_type == "finetuned":
-        age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/eval/f1_scores/age_condition_{metric}.csv')
+        age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/f1_scores/age_condition_{metric}.csv')
 
 def evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for race vs sex vs condition
     if metric == "loss":
-        labeled_columns = ['NA']
+        labeled_columns = ['No Finding_Labeled']  # Dummy column to avoid empty list
     else:
         labeled_columns = [col + '_Labeled' for col in original_columns]
     race_sex_condition_df = pd.DataFrame(columns=[
@@ -274,14 +274,14 @@ def evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric)
             }])
             race_sex_condition_df = pd.concat([race_sex_condition_df, new_data], ignore_index=True)
     if model_type == "base":
-        race_sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/eval/f1_scores/race_sex_condition_{metric}.csv')
+        race_sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/eval/f1_scores/race_sex_condition_{metric}.csv')
     elif model_type == "finetuned":
-        race_sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/eval/f1_scores/race_sex_condition_{metric}.csv')
+        race_sex_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/f1_scores/race_sex_condition_{metric}.csv')
 
 def evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric):
     ## Calculate table for race vs age vs condition
     if metric == "loss":
-        labeled_columns = ['NA']
+        labeled_columns = ['No Finding_Labeled']  # Dummy column to avoid empty list
     else:
         labeled_columns = [col + '_Labeled' for col in original_columns]
     race_age_condition_df = pd.DataFrame(columns=[
@@ -337,6 +337,6 @@ def evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric)
             }])
             race_age_condition_df = pd.concat([race_age_condition_df, new_data], ignore_index=True)
     if model_type == "base":
-        race_age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/eval/f1_scores/race_age_condition_{metric}.csv')
+        race_age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/eval/f1_scores/race_age_condition_{metric}.csv')
     elif model_type == "finetuned":
-        race_age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/eval/f1_scores/race_age_condition_{metric}.csv')
+        race_age_condition_df.to_csv(f'/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/f1_scores/race_age_condition_{metric}.csv')

@@ -2,14 +2,14 @@ import pandas as pd
 import json
 
 # Define file paths for the base location
-input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/predictions.jsonl'
-generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/generated_reports.csv'
-ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/ground_truth.csv'
+input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/predictions.jsonl'
+generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/generated_reports.csv'
+ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/ground_truth.csv'
 
 #Define file paths for the fine-tuned location
-# input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/predictions.jsonl'
-# generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/generated_reports.csv'
-# ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/ground_truth.csv'
+# input_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/predictions.jsonl'
+# generated_reports_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/generated_reports.csv'
+# ground_truth_file = '/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/ground_truth.csv'
 
 generated_records = []
 ground_truth_records = []

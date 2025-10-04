@@ -24,11 +24,11 @@ def llava_evaluation(model_type):
     Method to generate a clean dataset for evaluation of the llava-rad model
     '''
     if model_type == 'base':
-        generated_reports = pd.read_csv("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/generated_reports.csv")
-        labeled_reports = pd.read_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base_final/base_labeled_reports.csv')
+        generated_reports = pd.read_csv("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/generated_reports.csv")
+        labeled_reports = pd.read_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_base/base_labeled_reports.csv')
     elif model_type == 'finetuned':
-        generated_reports = pd.read_csv("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/generated_reports.csv")
-        labeled_reports = pd.read_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned_final/finetuned_labeled_reports.csv')
+        generated_reports = pd.read_csv("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/generated_reports.csv")
+        labeled_reports = pd.read_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/finetuned_labeled_reports.csv')
     labeled_reports['Reports'] = labeled_reports['Reports'].str.replace('"', '', regex=False)
     labeled_reports.columns = [col + '_Labeled' for col in labeled_reports.columns]
     test_data = pd.concat([generated_reports, labeled_reports], axis=1)
@@ -62,13 +62,13 @@ def evaluate_f1_score(model_type, metrics):
         evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
         evaluate_race_condition_table(test_chexpert_reports, model_type, metric)
         evaluate_age_condition_table(test_chexpert_reports, model_type, metric)
-        evaluate_race_sex_condition_table(test_chexpert_reports, model_type)
-        evaluate_race_age_condition_table(test_chexpert_reports, model_type)
+        #evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric)
+        #evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric)
 
 metrics = ["loss"]
-evaluate_f1_score("base", metrics)
+# evaluate_f1_score("base", metrics)
 evaluate_f1_score("finetuned", metrics)
 
-metrics = ["f1"]
-evaluate_f1_score("base", metrics)
-evaluate_f1_score("finetuned", metrics)
+# metrics = ["f1"]
+# evaluate_f1_score("base", metrics)
+# evaluate_f1_score("finetuned", metrics)
