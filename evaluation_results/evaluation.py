@@ -7,6 +7,9 @@ from scipy import stats
 from sklearn.metrics import confusion_matrix
 from ChexpertPreprocessing import CheXpertPreprocessing
 from condition_utils import evaluate_race_condition_table, evaluate_race_age_condition_table, evaluate_race_sex_condition_table, evaluate_age_condition_table, evaluate_sex_condition_table
+from no_condition_utils import evaluate_race_table, evaluate_sex_table, evaluate_age_table, evaluate_race_sex_table, evaluate_race_age_table, evaluate_sex_age_table
+from mann_whitney_utils import evaluate_race_table_mann_test, evaluate_sex_table_mann_test, evaluate_age_table_mann_test, evaluate_race_sex_table_mann_test, evaluate_race_age_table_mann_test, evaluate_sex_age_table_mann_test
+from quantile_analysis import quantile_analysis
 
 #Set paths and constants
 path = '/data/raw_data/chexpert/chexpertplus/df_chexpert_plus_240401.csv'
@@ -43,32 +46,58 @@ def llava_evaluation(model_type):
     print(chexpert_reports['loss'].isna().sum())
     return chexpert_reports
 
+def calculate_accuracy(y_pred, y_true):
+    '''
+    Method to calculate accuracy given predicted and true labels
+    '''
+    y_pred = y_pred.to_numpy()
+    y_true = y_true.to_numpy()
+    label_accuracies = (y_pred == y_true).mean(axis=0)
+    average_accuracy = label_accuracies.mean()
+    return average_accuracy
+
 def evaluate_f1_score(model_type, metrics):
     '''
     Method to evaluate the F1 score for the labeled CheXpert reports
     '''
     test_chexpert_reports = llava_evaluation(model_type)
     nan_proportion = test_chexpert_reports[labeled_columns].isna().mean()
-    logger.info(f"Proportion of NaN values in labeled columns: {nan_proportion}")
 
     test_chexpert_reports[labeled_columns] = test_chexpert_reports[labeled_columns].replace(-1, 0)
     test_chexpert_reports[labeled_columns] = test_chexpert_reports[labeled_columns].fillna(0)
     y_label = test_chexpert_reports[labeled_columns]
     y_true = test_chexpert_reports[original_columns]
     score = f1_score(y_true, y_label, average = 'macro')
+    accuracy = calculate_accuracy(y_label, y_true)
+
+    logger.info(f"Proportion of NaN values in labeled columns: {nan_proportion}")
     logger.info(f"F1 score for all columns: {score}")
+    logger.info(f"Accuracy for all columns: {accuracy}")
 
-    for metric in metrics:
-        evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
-        evaluate_race_condition_table(test_chexpert_reports, model_type, metric)
-        evaluate_age_condition_table(test_chexpert_reports, model_type, metric)
-        #evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric)
-        #evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric)
+    quantile_analysis(test_chexpert_reports)
 
-metrics = ["loss"]
-# evaluate_f1_score("base", metrics)
+    # for metric in metrics:
+    #     if metric == "accuracy" or metric == "micro-F1" or metric == "macro-F1":
+    #         evaluate_race_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_sex_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_age_table(test_chexpert_reports, model_type, metric)
+    #         #evaluate_race_sex_table(test_chexpert_reports, model_type, metric)
+    #         #evaluate_race_age_table(test_chexpert_reports, model_type, metric)
+    #         #evaluate_sex_age_accuracy_table(test_chexpert_reports, model_type)
+    #     elif metric == "mann-whitney-accuracy" or metric == "mann-whitney-micro-F1" or metric == "mann-whitney-macro-F1":
+    #         evaluate_race_table_mann_test(test_chexpert_reports, model_type, metric)
+    #         evaluate_sex_table_mann_test(test_chexpert_reports, model_type, metric)
+    #         evaluate_age_table_mann_test(test_chexpert_reports, model_type, metric)
+    #         evaluate_race_sex_table_mann_test(test_chexpert_reports, model_type, metric)
+    #         evaluate_race_age_table_mann_test(test_chexpert_reports, model_type, metric)
+    #         evaluate_sex_age_accuracy_table_mann_test(test_chexpert_reports, model_type)
+    #     else:
+    #         evaluate_sex_condition_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_race_condition_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_age_condition_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_race_sex_condition_table(test_chexpert_reports, model_type, metric)
+    #         evaluate_race_age_condition_table(test_chexpert_reports, model_type, metric)
+
+metrics = ["accuracy", "micro-F1", "macro-F1"]
+#evaluate_f1_score("base", metrics)
 evaluate_f1_score("finetuned", metrics)
-
-# metrics = ["f1"]
-# evaluate_f1_score("base", metrics)
-# evaluate_f1_score("finetuned", metrics)

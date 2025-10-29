@@ -1,5 +1,7 @@
 import pandas as pd 
 
+# Validated that we used the same preprocessing step when we created the GPT preprocessing file
+
 class CheXpertPreprocessing():
     '''Class perfroms preprocessing on a dataset given the path to the CSV file of the dataset'''
     def __init__(self, path, splits):
