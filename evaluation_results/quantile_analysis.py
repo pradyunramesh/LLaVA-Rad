@@ -25,16 +25,16 @@ def calculate_accuracy(y_pred, y_true):
 
 def calculate_p_value(obs_value, metrics, score_type, x, y):
     if obs_value >= 0:
-        p_value = np.sum(metrics <= 0) / len(metrics)
+        p_one_sided = np.sum(metrics <= 0) / len(metrics)
     else:
-        p_value = np.sum(metrics >= 0) / len(metrics)
+        p_one_sided = np.sum(metrics >= 0) / len(metrics)
     significance = f"No statistical significance for {score_type} score"
-    if p_value <0.05:
+    if p_one_sided <0.05:
         if obs_value >= 0:
-            significance = f"{x} has a significantly higher {score_type} score than {y}"
-        else:
             significance = f"{y} has a significantly higher {score_type} score than {x}"
-    return p_value, significance
+        else:
+            significance = f"{x} has a significantly higher {score_type} score than {y}"
+    return p_one_sided, significance
 
 def quantile_analysis(test_df):
     test_df["race"] = test_df[race_columns].idxmax(axis=1)
@@ -51,7 +51,7 @@ def quantile_analysis(test_df):
             )
         )
     )
-    metrics["acc_quantile"] = pd.qcut(metrics["accuracy"], q=15, labels=False)
+    metrics["acc_quantile"] = pd.qcut(metrics["accuracy"], q=5, labels=False)
     lowest_quantile = metrics[metrics["acc_quantile"] == 0].index.tolist()
     highest_quantile = metrics[metrics["acc_quantile"] == metrics["acc_quantile"].max()].index.tolist()
     print(lowest_quantile)
@@ -60,7 +60,7 @@ def quantile_analysis(test_df):
 
 def bootstrapping_quantile_analysis(test_df, lowest_quantile, highest_quantile):
     df = pd.DataFrame(columns = ['Group 1', 'Group 2', 'Accuracy: Group 1', 'Accuracy: Group 2', 
-    'P-Two-Sided', 'Significance-Two-Sided', 'P-One-Sided', 'Significance-One-Sided'])
+    'P-One-Sided', 'Significance-One-Sided'])
     scores = []
     scores_x = []
     scores_y = []
@@ -92,13 +92,12 @@ def bootstrapping_quantile_analysis(test_df, lowest_quantile, highest_quantile):
     print(upper2)
     print(lower3)
     print(upper3)
-    # p_two_sided, p_one_sided, significance_one_sided, significance_two_sided = calculate_p_value(obs_score, scores, "accuracy", 'Group 1', 'Group 2')
-    # data = pd.DataFrame([{'Group 1': lowest_quantile, 'Group 2': highest_quantile, 'Accuracy: Group 1': x_observed, 'Accuracy: Group 2': y_observed,
-    # 'P-Two-Sided': p_two_sided, 'Significance-Two-Sided': significance_two_sided, 'P-One-Sided': p_one_sided,
-    # 'Significance-One-Sided': significance_one_sided}])
-    # df = pd.concat([data, df], ignore_index=True)
+    p_one_sided, significance_one_sided = calculate_p_value(obs_score, scores, "accuracy", 'Group 1', 'Group 2')
+    data = pd.DataFrame([{'Group 1': lowest_quantile, 'Group 2': highest_quantile, 'Accuracy: Group 1': x_observed, 'Accuracy: Group 2': y_observed,
+    'P-One-Sided': p_one_sided, 'Significance-One-Sided': significance_one_sided}])
+    df = pd.concat([data, df], ignore_index=True)
     
-    # df.to_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/quantile_accuracy_scores_race.csv')
+    df.to_csv('/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/evaluation_results/llavarad_finetuned/eval/quantile_accuracy_scores_race.csv')
 
 def agg_stats(subset_df):
     total_correct = (subset_df["accuracy"] * subset_df["n"]).sum()
