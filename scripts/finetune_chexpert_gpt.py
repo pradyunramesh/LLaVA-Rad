@@ -1,0 +1,146 @@
+import json
+import sys
+import os
+import ast
+import pandas as pd
+from ChexpertPreprocessing import CheXpertPreprocessing
+from cleantext import clean
+
+#The clean-text 0.6.0 package is used to clean the text fields. By default, it transliterates non-ASCII characters to 
+# closest ASCII representation, fixes unicode sequences, lowercases the text, and removes line breaks.
+
+#Utility Methods
+def create_labels_dict(row):
+    """Convert CheXpert labels to dictionary for a single row"""
+    return {label: row[label] for label in CHEXPERT_LABELS if label in row}
+
+def create_conversations_list(findings, impression, indication, examination):
+    conversations = []
+    output = ""
+    if findings and findings != 'nan' and findings.lower() != 'none':
+        output = output + "Findings: " + str(findings).replace("\n", "").strip() + " "
+    if impression and impression != 'nan' and impression.lower() != 'none':
+        output = output + "Impression: " + str(impression).replace("\n", "").strip()
+    dict_findings = {"from": "gpt", "value": output}
+    if indication is not None and examination is not None:
+        reason = indication.replace('\n', '')
+        dict_reason = {"from": "human", "value": f"<image>\nProvide a description of the findings and impression in the radiology image given the following indication: {reason}. The examination conducted was {examination}"}
+    elif indication is None and examination is not None:
+        dict_reason = {"from": "human", "value": f"<image>\nProvide a description of the findings and impression in the radiology image. The examination conducted was {examination}"}
+    elif indication is not None and examination is None:
+        reason = indication.replace('\n', '')
+        dict_reason = {"from": "human", "value": f"<image>\nProvide a description of the findings and impression in the radiology image given the following indication: {reason}"}
+    else:
+        dict_reason = {"from": "human", "value": f"<image>\nProvide a description of the findings and impression in the radiology image."}
+    conversations.append(dict_reason)
+    conversations.append(dict_findings)
+    return conversations
+
+def clean_list_value(value):
+    if isinstance(value, list):
+        return ' '.join(map(str, value)).strip()
+    if isinstance(value, str):
+        try:
+            parsed = ast.literal_eval(value)
+            if isinstance(parsed, list):
+                return ' '.join(map(str, parsed)).strip()
+            else:
+                return str(parsed).strip()
+        except (ValueError, SyntaxError):
+            return value.strip("[]'\" ")
+    return str(value).strip()
+
+def clean_record(record):
+    for k, v in record.items():
+        if k in ["Examination", "Indication", "Impression"]:
+            record[k] = clean_list_value(v)
+        else:
+            record[k] = str(v).strip()
+    return record
+
+#Set paths and constants
+input_json_file = "/home/vj2292@mc.cumc.columbia.edu/Radiologist_Survey/full_preprocessed.jsonl"
+path = '/data/raw_data/chexpert/chexpertplus/df_chexpert_plus_240401.csv'
+preprocessed_path = "/home/pr2762@mc.cumc.columbia.edu/CXR_Attribution/splits/preprocessed_chexpert.csv"
+REQUIRED_COLUMNS = {'Examination', 'Indication', 'Findings', 'Impression'}
+CHEXPERT_LABELS = ['No Finding','Enlarged Cardiomediastinum','Cardiomegaly','Lung Opacity',
+    'Lung Lesion','Edema','Consolidation','Pneumonia','Atelectasis','Pneumothorax',
+    'Pleural Effusion','Pleural Other','Fracture','Support Devices']
+
+#Load and process the input Chexpert data to fit the Llava-Rad format
+splits = pd.read_csv(preprocessed_path)
+chexpert_obj = CheXpertPreprocessing(path, splits)
+df = chexpert_obj.read_data()
+df['section_indication'] = (df['section_history'].fillna('') + " " + df['section_clinical_history'].fillna(''))
+df['chexpert_labels'] = df.apply(create_labels_dict, axis=1)
+
+# Printing out some useful metrics
+print("Number of null findings: ", df['section_findings'].isnull().sum())
+print("Number of null impressions: ", df['section_impression'].isnull().sum())
+print("Length of chexpert data after preprocessing: ", len(df))
+print(df['split'].value_counts())
+
+def chexpert_record(index):
+    '''Method to process the input data file for the chexpert generate_method'''
+    reason = clean(df.loc[index, 'section_indication'], no_line_breaks=True, lower = False)
+    findings = clean(df.loc[index, 'section_findings'], no_line_breaks=True, lower = False)
+    impressions = clean(df.loc[index, 'section_impression'], no_line_breaks=True, lower = False)
+    examination = clean(df.loc[index, 'section_narrative'], no_line_breaks=True, lower = False)
+    input_row = {
+        'Indication': reason,
+        'Findings': findings,
+        'Impression': impressions,
+        'Examination': examination,
+        'Image': df.loc[index, 'path_to_image'],
+        'Generate_Method': 'chexpert',
+        'Chexpert_Labels': df.loc[index, 'chexpert_labels'],
+        'Split': df.loc[index, 'split'],
+        'Conversations': create_conversations_list(findings, impressions, reason, examination),
+    }
+    return input_row
+
+def gpt_chexpert_record(index, record):
+    record['Findings'] = clean(record['Findings'], no_line_breaks=True, lower = False)
+    record['Impression'] = clean(record['Impression'], no_line_breaks=True, lower = False)
+    record['Indication'] = clean(record['Indication'], no_line_breaks=True, lower = False)
+    record['Examination'] = clean(record['Examination'], no_line_breaks=True, lower = False)
+    record['Generate_Method'] = 'gpt'
+    record['Chexpert_Labels'] = df.loc[index, 'chexpert_labels']
+    record['Split'] = df.loc[index, 'split']
+    record['Image'] = df.loc[index, 'path_to_image']
+    record['Conversations'] = create_conversations_list(record['Findings'], record['Impression'], record['Indication'], record['Examination'])
+    return record
+
+def process_gpt_file():
+    '''Method to process the input data file for the gpt generate_method'''
+    records = []
+    counter = -1
+    with open(input_json_file, "r") as f:
+        for line in f:
+            counter += 1
+            try:
+                line = line.strip().replace('\\n', '').replace('\\', '')
+                line = line.strip('"')
+                record = json.loads(line)
+                if isinstance(record, dict) and set(REQUIRED_COLUMNS) == set(record.keys()):
+                    record = clean_record(record)
+                    record = gpt_chexpert_record(counter, record)
+                    records.append(record)
+                else:
+                    record = chexpert_record(counter)
+                    records.append(record)
+            except json.JSONDecodeError as e:
+                record = chexpert_record(counter)
+                records.append(record)
+                continue
+
+    input_json_df = pd.DataFrame(records)
+    assert counter + 1 == len(input_json_df), "Mismatch in number of records processed"
+    print("Generate_Method value counts in processed GPT data: ", input_json_df['Generate_Method'].value_counts())
+
+    #Delete existing data.jsonl file if it exists - Append mode is used to write the processed data
+    with open("gpt_processed_data.jsonl", "a") as f:
+        for record in records:
+            f.write(json.dumps(record) + "\n")
+
+process_gpt_file()
