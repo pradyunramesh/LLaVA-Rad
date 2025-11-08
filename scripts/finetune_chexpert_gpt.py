@@ -87,29 +87,30 @@ def chexpert_record(index):
     impressions = clean(df.loc[index, 'section_impression'], no_line_breaks=True, lower = False)
     examination = clean(df.loc[index, 'section_narrative'], no_line_breaks=True, lower = False)
     input_row = {
-        'Indication': reason,
-        'Findings': findings,
-        'Impression': impressions,
-        'Examination': examination,
-        'Image': df.loc[index, 'path_to_image'],
-        'Generate_Method': 'chexpert',
-        'Chexpert_Labels': df.loc[index, 'chexpert_labels'],
-        'Split': df.loc[index, 'split'],
-        'Conversations': create_conversations_list(findings, impressions, reason, examination),
+        'reason': reason,
+        'findings': findings,
+        'impressions': impressions,
+        'examination': examination,
+        'image': df.loc[index, 'path_to_image'],
+        'generate_method': 'chexpert',
+        'chexpert_labels': df.loc[index, 'chexpert_labels'],
+        'split': df.loc[index, 'split'],
+        'conversations': create_conversations_list(findings, impressions, reason, examination),
     }
     return input_row
 
 def gpt_chexpert_record(index, record):
-    record['Findings'] = clean(record['Findings'], no_line_breaks=True, lower = False)
-    record['Impression'] = clean(record['Impression'], no_line_breaks=True, lower = False)
-    record['Indication'] = clean(record['Indication'], no_line_breaks=True, lower = False)
-    record['Examination'] = clean(record['Examination'], no_line_breaks=True, lower = False)
-    record['Generate_Method'] = 'gpt'
-    record['Chexpert_Labels'] = df.loc[index, 'chexpert_labels']
-    record['Split'] = df.loc[index, 'split']
-    record['Image'] = df.loc[index, 'path_to_image']
-    record['Conversations'] = create_conversations_list(record['Findings'], record['Impression'], record['Indication'], record['Examination'])
-    return record
+    new_record = {}
+    new_record['reason'] = clean(record['Indication'], no_line_breaks=True, lower = False)
+    new_record['findings'] = clean(record['Findings'], no_line_breaks=True, lower = False)
+    new_record['impressions'] = clean(record['Impression'], no_line_breaks=True, lower = False)
+    new_record['examination'] = clean(record['Examination'], no_line_breaks=True, lower = False)
+    new_record['image'] = df.loc[index, 'path_to_image']
+    new_record['generate_method'] = 'gpt'
+    new_record['chexpert_labels'] = df.loc[index, 'chexpert_labels']
+    new_record['split'] = df.loc[index, 'split']
+    new_record['conversations'] = create_conversations_list(new_record['findings'], new_record['impressions'], new_record['reason'], new_record['examination'])
+    return new_record
 
 def process_gpt_file():
     '''Method to process the input data file for the gpt generate_method'''
@@ -136,7 +137,7 @@ def process_gpt_file():
 
     input_json_df = pd.DataFrame(records)
     assert counter + 1 == len(input_json_df), "Mismatch in number of records processed"
-    print("Generate_Method value counts in processed GPT data: ", input_json_df['Generate_Method'].value_counts())
+    print("Generate_Method value counts in processed GPT data: ", input_json_df['generate_method'].value_counts())
 
     #Delete existing data.jsonl file if it exists - Append mode is used to write the processed data
     with open("gpt_processed_data.jsonl", "a") as f:

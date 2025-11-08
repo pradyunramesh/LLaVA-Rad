@@ -4,18 +4,19 @@ set -e
 set -o pipefail
 
 model_base=lmsys/vicuna-7b-v1.5
-#model_path=microsoft/llava-rad
-model_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-lora-3e-1e-4-20250907223658
+model_path=microsoft/llava-rad
+#model_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-lora-3e-1e-4-20250907223658
 
 model_base="${1:-$model_base}"
 model_path="${2:-$model_path}"
-prediction_dir="${3:-results/llavarad}"
+prediction_dir="${3:-results/llavaradbase}"
 prediction_file=$prediction_dir/test
 
 run_name="${4:-llavarad}"
 
 
-query_file=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+#query_file=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+query_file=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/gpt_processed_data.jsonl
 
 image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
 loader="chexpert_test_findings_impressions"

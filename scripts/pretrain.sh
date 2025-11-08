@@ -5,7 +5,8 @@
 model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
-data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+#data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/gpt_processed_data.jsonl
 image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
 loader="chexpert_train_findings_impressions"
 
@@ -14,7 +15,7 @@ loader="chexpert_train_findings_impressions"
 # data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
 # loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
 # image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
-# vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
+# vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224 for open-source model. More changes in the readme in the open_clip_encoder folder for the open-source model. Use the vision folder as is to use the internal vision tower model.
 # vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # output_dir: Directory to save the fine-tuned model checkpoints. Set by default to the ./checkpoints folder in the current directory.

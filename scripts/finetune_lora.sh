@@ -15,7 +15,8 @@ vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
 
 
 ################## Data ##################
-data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+#data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
+data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/gpt_processed_data.jsonl
 image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
 loader="chexpert_train_findings_impressions"
 ################## Data ##################
