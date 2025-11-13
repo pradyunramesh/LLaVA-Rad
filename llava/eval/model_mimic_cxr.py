@@ -150,8 +150,8 @@ def eval_model(
             batch_input_ids.append(input_ids)
             batch_images.append(image_tensor)
 
-        stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-
+        stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2 
+        
         with torch.inference_mode():
             batch_input_ids_padded = pad_sequence(batch_input_ids, batch_first=True, padding_value=tokenizer.pad_token_id)
             max_input_len = batch_input_ids_padded.shape[1]
