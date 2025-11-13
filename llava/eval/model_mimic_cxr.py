@@ -9,6 +9,7 @@ import torch
 import fire
 from tqdm import tqdm
 from PIL import Image, ImageFile
+from torch.nn.utils.rnn import pad_sequence
 # https://stackoverflow.com/questions/12984426/pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -152,14 +153,12 @@ def eval_model(
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
 
         with torch.inference_mode():
-            # Ensure inputs are deterministically processed
-            input_ids_tensor = torch.stack(batch_input_ids).cuda()
-            images_tensor = torch.stack(batch_images).half().cuda()
-            
-            # Set generation configs for complete determinism
+            batch_input_ids_padded = pad_sequence(batch_input_ids, batch_first=True, padding_value=tokenizer.pad_token_id)
+            max_input_len = batch_input_ids_padded.shape[1]
+
             batch_output_ids = model.generate(
-                input_ids_tensor,
-                images=images_tensor,
+                torch.stack(batch_input_ids).cuda(),
+                images=torch.stack(batch_images).half().cuda(),
                 do_sample=False,
                 temperature=0,
                 top_p=None,
@@ -168,7 +167,7 @@ def eval_model(
                 use_cache=True).cpu()
 
             batch_outputs = tokenizer.batch_decode(
-                batch_output_ids[:, len(batch_input_ids[0]):], skip_special_tokens=True
+                batch_output_ids[:, max_input_len:], skip_special_tokens=True
             )
 
         for query, prompt, outputs, input_ids, output_ids, loss in zip(
