@@ -1,7 +1,0 @@
-,Condition,Race 1,Race 2,Race 1: loss,Race 2: loss,P-Value loss,Statistical Significance loss
-0,No Finding,race_WHITE,race_BLACK,1.0402089311155198,1.087718036634757,0.0857,No statistical significance for loss score
-1,No Finding,race_WHITE,race_ASIAN,1.0402089311155198,1.0336355883110195,0.3618,No statistical significance for loss score
-2,No Finding,race_WHITE,race_HISPANIC,1.0402089311155198,1.010722516366383,0.0474,race_WHITE has a significantly higher loss score than race_HISPANIC
-3,No Finding,race_BLACK,race_ASIAN,1.087718036634757,1.0336355883110195,0.0857,No statistical significance for loss score
-4,No Finding,race_BLACK,race_HISPANIC,1.087718036634757,1.010722516366383,0.0156,race_BLACK has a significantly higher loss score than race_HISPANIC
-5,No Finding,race_ASIAN,race_HISPANIC,1.0336355883110195,1.010722516366383,0.1785,No statistical significance for loss score
