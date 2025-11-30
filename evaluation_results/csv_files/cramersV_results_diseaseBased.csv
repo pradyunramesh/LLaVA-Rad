@@ -1,0 +1,57 @@
+condition,demographic_variable,cramers_v
+No Finding,race,0.04531192022375234
+No Finding,age,0.12468638706443219
+No Finding,sex,0.0038168017320352587
+No Finding,demo_group,0.12971334180578525
+Enlarged Cardiomediastinum,race,0.014923028609247525
+Enlarged Cardiomediastinum,age,0.006548435528339219
+Enlarged Cardiomediastinum,sex,0.015908780457463825
+Enlarged Cardiomediastinum,demo_group,0.02737633135127071
+Cardiomegaly,race,0.024213700524882406
+Cardiomegaly,age,0.10133963585832508
+Cardiomegaly,sex,0.0
+Cardiomegaly,demo_group,0.1125682449812723
+Lung Lesion,race,0.02909254786646461
+Lung Lesion,age,0.01381838533503183
+Lung Lesion,sex,0.0
+Lung Lesion,demo_group,0.03673403687409019
+Lung Opacity,race,0.011282746186432935
+Lung Opacity,age,0.022422918277204554
+Lung Opacity,sex,0.0
+Lung Opacity,demo_group,0.0225525390074038
+Edema,race,0.027387076951451737
+Edema,age,0.06555497333807679
+Edema,sex,0.020107052473394022
+Edema,demo_group,0.07524237228269051
+Consolidation,race,0.0
+Consolidation,age,0.011853021741615346
+Consolidation,sex,0.0
+Consolidation,demo_group,0.03309257085333359
+Pneumonia,race,0.0038364384545280556
+Pneumonia,age,0.025676065436209317
+Pneumonia,sex,0.0
+Pneumonia,demo_group,0.034422862008804365
+Atelectasis,race,0.024945962219928317
+Atelectasis,age,0.03206221773699485
+Atelectasis,sex,0.0038890093228455304
+Atelectasis,demo_group,0.04459402117128717
+Pneumothorax,race,0.033625881450579154
+Pneumothorax,age,0.05722355160234116
+Pneumothorax,sex,0.016900072282952212
+Pneumothorax,demo_group,0.08262098023566784
+Pleural Effusion,race,0.01704681905997515
+Pleural Effusion,age,0.02509722717142868
+Pleural Effusion,sex,0.01149787264632407
+Pleural Effusion,demo_group,0.0352383073114713
+Pleural Other,race,0.006726611062507508
+Pleural Other,age,0.018166336459289608
+Pleural Other,sex,0.014389534763151038
+Pleural Other,demo_group,0.04742882920669485
+Fracture,race,0.027611032509667552
+Fracture,age,0.03712519290075071
+Fracture,sex,0.02253347593436649
+Fracture,demo_group,0.06272688532716364
+Support Devices,race,0.014148994199749342
+Support Devices,age,0.11189900315277285
+Support Devices,sex,0.03537090932523487
+Support Devices,demo_group,0.11992038209951407

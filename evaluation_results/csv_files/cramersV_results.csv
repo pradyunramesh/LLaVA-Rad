@@ -1,0 +1,13 @@
+metric,demographic_variable,cramers_v
+acc_quantile,race,0.01471744166627246
+acc_quantile,age,0.03659594467697621
+acc_quantile,sex,0.0
+acc_quantile,demo_group,0.039026657442989526
+tpr_quantile,race,0.01833718939656586
+tpr_quantile,age,0.02501622171580074
+tpr_quantile,sex,0.006982866882403993
+tpr_quantile,demo_group,0.04443257928903797
+fpr_quantile,race,0.025835593376657476
+fpr_quantile,age,0.058102624650074874
+fpr_quantile,sex,0.0
+fpr_quantile,demo_group,0.04958051702500053
