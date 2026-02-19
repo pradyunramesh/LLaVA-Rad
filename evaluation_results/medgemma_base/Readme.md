@@ -80,9 +80,19 @@ Evaluate MedGemma-1.5 4B on CheXpert dataset using the **same methodology** as L
 - **Process**:
   1. Load predictions and references from JSONL
   2. Call `rrg_eval.chexbert.evaluate(predictions, references, ...)`
-  3. **Key methodology**: CheXbert labels **BOTH** predictions AND references
-     - Code: `model(preds + refs)` in `chexbert.py`
-     - This ensures fair comparison using CheXbert-labeled ground truth
+  3. **Critical Methodology: CheXbert Labels BOTH Predictions AND References**
+     - **Why this matters**: CheXbert is a BERT-based labeler that extracts 14 medical conditions from radiology reports
+     - **Key implementation**: `model(preds + refs)` in `chexbert.py` (line 300)
+       - Both predictions and references are passed together to CheXbert
+       - CheXbert labels all reports in a single batch
+       - Then splits: `binary_rets[:len(preds)]` for predictions, `binary_rets[len(preds):]` for references
+     - **Why this ensures fair comparison**:
+       - Both predictions and ground truth references are labeled using the same CheXbert model
+       - This eliminates bias from using different labeling methods
+       - Original CheXpert labels (from `valid.csv`) are NOT used - only CheXbert-labeled references
+     - **Label mapping**: CheXbert outputs 0=blank, 1=negative, 2=uncertain, 3=positive
+       - Converted to binary: 3 (positive) → 1, all others → 0 (mode='rrg')
+       - For "+" variants: uncertain (2) is also mapped to 1
   4. Compute F1 scores:
      - Micro-F1-14, Macro-F1-14 (14 conditions)
      - Micro-F1-5, Macro-F1-5 (5 key conditions)
@@ -122,7 +132,17 @@ Evaluate MedGemma-1.5 4B on CheXpert dataset using the **same methodology** as L
 
 ## Critical Methodology Points
 
-1. **CheXbert labels BOTH predictions and references**: This is the key alignment point. LLaVA-Rad's `rrg_eval` uses CheXbert to label both, ensuring fair comparison.
+1. **CheXbert labels BOTH predictions and references**: This is the key alignment point for fair comparison.
+   - **Implementation**: In `rrg_eval/rrg_eval/chexbert.py`, the `evaluate()` function calls `model(preds + refs)` (line 300)
+   - **Process**: 
+     - All reports (predictions + references) are passed to CheXbert in a single batch
+     - CheXbert extracts 14 medical conditions from each report
+     - Results are split: first `len(preds)` are predictions, remaining are references
+   - **Why critical**: 
+     - Both predictions and ground truth are labeled using the same model (CheXbert)
+     - Original CheXpert labels from `valid.csv` are NOT used as ground truth
+     - This ensures the evaluation compares "apples to apples" - both labeled by CheXbert
+   - **Label conversion**: CheXbert outputs are mapped to binary (positive=1, others=0) for F1 calculation
 
 2. **Same evaluation script**: Both use `llava/eval/rrg_eval/run.py` with same parameters.
 
