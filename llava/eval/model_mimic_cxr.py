@@ -157,7 +157,7 @@ def eval_model(
             max_input_len = batch_input_ids_padded.shape[1]
 
             batch_output_ids = model.generate(
-                torch.stack(batch_input_ids).cuda(),
+                batch_input_ids_padded.cuda(),
                 images=torch.stack(batch_images).half().cuda(),
                 do_sample=False,
                 temperature=0,
@@ -171,7 +171,7 @@ def eval_model(
             )
 
         for query, prompt, outputs, input_ids, output_ids, loss in zip(
-            batch_queries, batch_prompts, batch_outputs, batch_input_ids, batch_output_ids, batch_losses):
+            batch_queries, batch_prompts, batch_outputs, batch_input_ids_padded, batch_output_ids, batch_losses):
             q = query["conversations"][0]["value"]
             ref = query["conversations"][1]["value"]
             input_token_len = input_ids.shape[0]
