@@ -156,6 +156,7 @@ def eval_model(
             batch_input_ids_padded = pad_sequence(batch_input_ids, batch_first=True, padding_value=tokenizer.pad_token_id)
             max_input_len = batch_input_ids_padded.shape[1]
 
+            attention_mask = (batch_input_ids_padded != tokenizer.pad_token_id).long()
             batch_output_ids = model.generate(
                 batch_input_ids_padded.cuda(),
                 images=torch.stack(batch_images).half().cuda(),
