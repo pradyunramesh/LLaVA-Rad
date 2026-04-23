@@ -160,6 +160,7 @@ def eval_model(
             batch_output_ids = model.generate(
                 batch_input_ids_padded.cuda(),
                 images=torch.stack(batch_images).half().cuda(),
+                attention_mask=attention_mask.cuda(),
                 do_sample=False,
                 temperature=0,
                 top_p=None,

@@ -36,8 +36,10 @@ def build_logger(logger_name, logger_filename):
     sys.stdout = sl
 
     stderr_logger = logging.getLogger("stderr")
-    stderr_logger.setLevel(logging.ERROR)
-    sl = StreamToLogger(stderr_logger, logging.ERROR)
+    # Many libraries (e.g., tqdm) write progress updates to stderr.
+    # Treat stderr as warning-level by default to avoid false "ERROR" logs.
+    stderr_logger.setLevel(logging.WARNING)
+    sl = StreamToLogger(stderr_logger, logging.WARNING)
     sys.stderr = sl
 
     # Get logger
@@ -82,13 +84,17 @@ class StreamToLogger(object):
             # By default sys.stdout.write() expects '\n' newlines and then
             # translates them so this is still cross platform.
             if line[-1] == '\n':
-                self.logger.log(self.log_level, line.rstrip())
+                message = line.rstrip()
+                if message:
+                    self.logger.log(self.log_level, message)
             else:
                 self.linebuf += line
 
     def flush(self):
         if self.linebuf != '':
-            self.logger.log(self.log_level, self.linebuf.rstrip())
+            message = self.linebuf.rstrip()
+            if message:
+                self.logger.log(self.log_level, message)
         self.linebuf = ''
 
 
@@ -211,6 +217,7 @@ data_loaders = {
     "mimic_cxr_all_views_findings": data_loader_mimic_cxr_all_views_findings,
     "chexpert_train_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "train"),
     "chexpert_test_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "test"),
+    "chexpert_valid_findings_impressions": lambda x: data_loader_chexpert_reason_findings_impressions(x, "val"),
 }
 
 data_loader_chexpert_reason_findings_impressions("/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl", "train")

@@ -17,6 +17,8 @@ CHEXBERT_CONDITIONS = [
 
 CONDITIONS_5 = ["Cardiomegaly", "Edema", "Consolidation", "Atelectasis", "Pleural Effusion"]
 
+CONDITIONS_4 = ["Atelectasis", "Pleural Effusion", "Cardiomegaly", "Support Devices"]
+
 CheXbert_CONDITIONS = [
     'Enlarged Cardiomediastinum', 'Cardiomegaly', 'Lung Opacity',
     'Lung Lesion', 'Edema', 'Consolidation', 'Pneumonia', 'Atelectasis',

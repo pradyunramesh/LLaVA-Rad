@@ -1,23 +1,38 @@
 #!/bin/bash
 
+set -euo pipefail
+
+# Always run from repository root so relative paths resolve correctly.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${REPO_ROOT}"
+
+# Prefer this repository's llava package over any site-packages installation.
+export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"
+
+# Ensure CUDA runtime libraries from the active conda env are discoverable.
+if [[ -n "${CONDA_PREFIX:-}" && -d "${CONDA_PREFIX}/lib" ]]; then
+    export LD_LIBRARY_PATH="${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH:-}"
+fi
+
 # Set the following variables correspondingly to run this script:
 
 ################## VICUNA ##################
 PROMPT_VERSION=v1
 model_base=lmsys/vicuna-7b-v1.5
-output_dir="${1:-./checkpoints}"
+output_dir="/home/pr2762@mc.cumc.columbia.edu/CXR-pipeline/CXR-reason/checkpoints/llava-rad"
 
 #PROJECTOR="/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-pt-1e-1e-3-20250907160427/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
-PROJECTOR="/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/checkpoints/biomedclip_cxr_518-pt-1e-1e-3-20251108175623/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
+PROJECTOR="/home/pr2762@mc.cumc.columbia.edu/CXR-pipeline/CXR-reason/checkpoints/mm_projector.bin" # generated using pretrain.sh - Keep empty to make use of the pretrained projector
 vision_tower="biomedclip_cxr_518"
-vision_tower_config="llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json"
+vision_tower_config="biomedclip_cxr_518.json" #Set to biomedclip_cxr_518.json to use the Huggingface default
 vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
 ################## VICUNA ##################
 
 
 ################## Data ##################
 #data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
-data_path=/home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/gpt_processed_data.jsonl
+data_path=/home/pr2762@mc.cumc.columbia.edu/CXR-pipeline/CXR-reason/data/chexpert/processed/llavarad_train.jsonl
 image_folder=/data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0
 loader="chexpert_train_findings_impressions"
 ################## Data ##################
@@ -25,7 +40,8 @@ loader="chexpert_train_findings_impressions"
 ################## Run name ##################
 epoch="${2:-3}"
 bsz="${3:-16}"
-lr="1e-4"
+lr="1e-5"
+master_port="${MASTER_PORT:-29601}"
 schedule="lora-${epoch}e"
 export run_name="${vision_tower}-${schedule}-${lr}-$(date +%Y%m%d%H%M%S)"
 echo $run_name > run_name
@@ -36,7 +52,7 @@ echo $run_name > run_name
 # data_path: Path to the training data JSON file. Set to /home/pr2762@mc.cumc.columbia.edu/LLaVA-Rad/scripts/data.jsonl
 # loader: Data loader type, set to chexpert_train_findings_impressions for the chexpert dataset.
 # image_folder: Path to the folder containing images. Set to /data/raw_data/chexpert/chexpertchestxrays-u20210408/CheXpert-v1.0/
-# vision_tower: Vision tower model, set to hf-hub:microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224. Use the vision folder as is to use the internal vision tower model.
+# vision_tower: Vision tower model, Use the vision folder as is to use the internal vision tower model.
 # vision_tower_config: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # vision_tower_checkpoint: Remove when using open source vision model from HuggingFace. Keep as is for the internal model.
 # PROJECTOR: Path to the pretrained mm_projector generated from pretrain.sh. It doesn't look like we use the pretrained projector here.
@@ -49,8 +65,9 @@ echo $run_name > run_name
 # '''
 
 # Batch size is set for 4-GPU machines.
-WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=fine-tune \
-    deepspeed llava/train/train_mem.py \
+# Log checkpoints as W&B model artifacts so they can be downloaded later.
+WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GROUP=fine-tune WANDB_LOG_MODEL=checkpoint \
+    deepspeed --master_port ${master_port} llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
     --lora_enable True \
     --lora_alpha 128 \
@@ -86,6 +103,6 @@ WANDB_PROJECT="llava-rad-finetuning" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S
     --model_max_length 2048 \
     --gradient_checkpointing True \
     --lazy_preprocess True \
-    --dataloader_num_workers 2 \
+    --dataloader_num_workers 4 \
     --report_to wandb \
     --run_name ${run_name}

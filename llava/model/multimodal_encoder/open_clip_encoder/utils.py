@@ -1,11 +1,47 @@
 from typing import Optional, Dict
 import os
+import pickle
+import warnings
 
 import torch
 import numpy as np
 from open_clip import create_model_from_pretrained, get_tokenizer # works on open-clip-torch>=2.23.0, timm>=0.9.8
-from open_clip.factory import HF_HUB_PREFIX, _MODEL_CONFIGS, load_state_dict
+from open_clip.factory import HF_HUB_PREFIX, _MODEL_CONFIGS
 
+
+
+def load_state_dict_compat(checkpoint_path: str, map_location: str = "cpu"):
+    """Compatibility loader for checkpoints across torch.load defaults.
+
+    PyTorch >= 2.6 changed torch.load default to weights_only=True, which can
+    fail for trusted legacy checkpoints containing numpy scalar objects.
+    """
+    try:
+        checkpoint = torch.load(checkpoint_path, map_location=map_location)
+    except (pickle.UnpicklingError, RuntimeError) as e:
+        if "Weights only load failed" not in str(e):
+            raise
+        warnings.warn(
+            "Retrying checkpoint load with weights_only=False for trusted checkpoint.",
+            RuntimeWarning,
+        )
+        checkpoint = torch.load(checkpoint_path, map_location=map_location, weights_only=False)
+
+    if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
+        state_dict = checkpoint["state_dict"]
+    elif isinstance(checkpoint, torch.jit.ScriptModule):
+        state_dict = checkpoint.state_dict()
+        for key in ["input_resolution", "context_length", "vocab_size"]:
+            state_dict.pop(key, None)
+    else:
+        state_dict = checkpoint
+    
+    for key in ["text.transformer.pooler.dense.weight", "text.transformer.pooler.dense.bias"]: #Discard pooler weights as the default BERT pooler squashes weights and is not used in contrastive learning. cls_last_hidden_staet_pooler is used instead
+        state_dict.pop(key, None)
+
+    if next(iter(state_dict.items()))[0].startswith("module."):
+        state_dict = {k[7:]: v for k, v in state_dict.items()}
+    return state_dict
 
 
 def get_clip_metrics(image_features, text_features, logit_scale):
@@ -52,7 +88,7 @@ def remove_transformer_pooler_weights(
         checkpoint_path, new_path="/tmp/biomed_clip/ckpt.pt"
     ):
     need_new = False
-    state_dict = load_state_dict(checkpoint_path)
+    state_dict = load_state_dict_compat(checkpoint_path)
     for key in list(state_dict.keys()):
         if key.startswith("text.transformer.pooler"):
             need_new = True

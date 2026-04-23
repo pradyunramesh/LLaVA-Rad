@@ -76,6 +76,15 @@ def chexbert(predictions, references, bootstrap_ci: bool = False):
     return rrg_eval.chexbert.evaluate(predictions, references, include_original=False, bootstrap_ci=bootstrap_ci)
 
 
+def build_subset_breakdown_df(breakdown):
+    breakdown_df = pd.DataFrame(breakdown).T
+    if "f1_ci" in breakdown_df.columns:
+        breakdown_df["f1_ci_l"] = breakdown_df["f1_ci"].apply(lambda ci: ci[0])
+        breakdown_df["f1_ci_h"] = breakdown_df["f1_ci"].apply(lambda ci: ci[1])
+        breakdown_df = breakdown_df.drop(columns=["f1_ci"])
+    return breakdown_df
+
+
 SCORER_NAME_TO_CLASS = {
     "ROUGE-L": rougel,
     "ROUGE-2": rouge2,
@@ -122,13 +131,17 @@ class ReportGenerationEvaluator:
                     scores["Macro-F1-14"] = {k: metrics[0]["macro avg"][k] for k in keys}
                     scores["Micro-F1-5"] = {k: metrics[1]["micro avg"][k] for k in keys}
                     scores["Macro-F1-5"] = {k: metrics[1]["macro avg"][k] for k in keys}
-                    scores["Micro-F1-14+"] = {k: metrics[2]["micro avg"][k] for k in keys}
-                    scores["Macro-F1-14+"] = {k: metrics[2]["macro avg"][k] for k in keys}
-                    scores["Micro-F1-5+"] = {k: metrics[3]["micro avg"][k] for k in keys}
-                    scores["Macro-F1-5+"] = {k: metrics[3]["macro avg"][k] for k in keys}
-                    scores["breakdown-"] = metrics[0]
-                    scores["breakdown+"] = metrics[2]
-                    scores["chexbert_metrics"] = metrics[-1]
+                    scores["Micro-F1-4"] = {k: metrics[2]["micro avg"][k] for k in keys}
+                    scores["Macro-F1-4"] = {k: metrics[2]["macro avg"][k] for k in keys}
+                    scores["Micro-F1-14+"] = {k: metrics[3]["micro avg"][k] for k in keys}
+                    scores["Macro-F1-14+"] = {k: metrics[3]["macro avg"][k] for k in keys}
+                    scores["Micro-F1-5+"] = {k: metrics[4]["micro avg"][k] for k in keys}
+                    scores["Macro-F1-5+"] = {k: metrics[4]["macro avg"][k] for k in keys}
+                    scores["Micro-F1-4+"] = {k: metrics[5]["micro avg"][k] for k in keys}
+                    scores["Macro-F1-4+"] = {k: metrics[5]["macro avg"][k] for k in keys}
+                    scores["subset_breakdown-"] = metrics[7]
+                    scores["subset_breakdown+"] = metrics[8]
+                    scores["chexbert_metrics"] = metrics[6]
                 elif name == "F1-RadGraph":
                     scores["F1-RadGraph"] = scores.pop(name)
         else:
@@ -139,13 +152,17 @@ class ReportGenerationEvaluator:
                     scores["Macro-F1-14"] = metrics[0]["macro avg"]["f1-score"]
                     scores["Micro-F1-5"] = metrics[1]["micro avg"]["f1-score"]
                     scores["Macro-F1-5"] = metrics[1]["macro avg"]["f1-score"]
-                    scores["Micro-F1-14+"] = metrics[2]["micro avg"]["f1-score"]
-                    scores["Macro-F1-14+"] = metrics[2]["macro avg"]["f1-score"]
-                    scores["Micro-F1-5+"] = metrics[3]["micro avg"]["f1-score"]
-                    scores["Macro-F1-5+"] = metrics[3]["macro avg"]["f1-score"]
-                    scores["breakdown-"] = metrics[0]
-                    scores["breakdown+"] = metrics[2]
-                    scores["chexbert_metrics"] = metrics[-1]
+                    scores["Micro-F1-4"] = metrics[2]["micro avg"]["f1-score"]
+                    scores["Macro-F1-4"] = metrics[2]["macro avg"]["f1-score"]
+                    scores["Micro-F1-14+"] = metrics[3]["micro avg"]["f1-score"]
+                    scores["Macro-F1-14+"] = metrics[3]["macro avg"]["f1-score"]
+                    scores["Micro-F1-5+"] = metrics[4]["micro avg"]["f1-score"]
+                    scores["Macro-F1-5+"] = metrics[4]["macro avg"]["f1-score"]
+                    scores["Micro-F1-4+"] = metrics[5]["micro avg"]["f1-score"]
+                    scores["Macro-F1-4+"] = metrics[5]["macro avg"]["f1-score"]
+                    scores["subset_breakdown-"] = metrics[7]
+                    scores["subset_breakdown+"] = metrics[8]
+                    scores["chexbert_metrics"] = metrics[6]
                 elif name == "F1-RadGraph":
                     scores["F1-RadGraph"] = scores.pop(name)["f1-radgraph"]
 
@@ -202,18 +219,20 @@ def main(
     print("========== Main Results ==========")
     if bootstrap_ci:
         main_results = pd.DataFrame.from_dict({
-            k:v for k,v in results.items() if k not in ("breakdown+", "breakdown-", "chexbert_metrics")
+            k:v for k,v in results.items() if k not in ("subset_breakdown+", "subset_breakdown-", "chexbert_metrics")
         })
         print(main_results[[
-            "Micro-F1-14", "Micro-F1-5", "Macro-F1-14", "Macro-F1-5",
-            "Micro-F1-14+", "Micro-F1-5+", "Macro-F1-14+", "Macro-F1-5+",
+            "Micro-F1-14", "Micro-F1-5", "Micro-F1-4", "Macro-F1-14", "Macro-F1-5", "Macro-F1-4",
+            "Micro-F1-14+", "Micro-F1-5+", "Micro-F1-4+", "Macro-F1-14+", "Macro-F1-5+", "Macro-F1-4+",
             "F1-RadGraph", "BLEU-1", "BLEU-4", "ROUGE-L"
         ]])
     else:
-        main_results = pd.DataFrame.from_dict({k:v for k,v in results.items() if type(v)!= dict}, 'index')
+        main_results = pd.DataFrame.from_dict({
+            k:v for k,v in results.items() if k not in ("subset_breakdown+", "subset_breakdown-", "chexbert_metrics") and type(v) != dict
+        }, 'index')
         print(main_results.T[[
-            "Micro-F1-14", "Micro-F1-5", "Macro-F1-14", "Macro-F1-5",
-            "Micro-F1-14+", "Micro-F1-5+", "Macro-F1-14+", "Macro-F1-5+",
+            "Micro-F1-14", "Micro-F1-5", "Micro-F1-4", "Macro-F1-14", "Macro-F1-5", "Macro-F1-4",
+            "Micro-F1-14+", "Micro-F1-5+", "Micro-F1-4+", "Macro-F1-14+", "Macro-F1-5+", "Macro-F1-4+",
             "F1-RadGraph", "BLEU-1", "BLEU-4", "ROUGE-L"
         ]])
     print("")
@@ -233,21 +252,17 @@ def main(
         wandb.init(name=run_name)
         wandb.log(wandb_results)
     
-    print("========== CheXbert F1 (uncertain as positive) ==========")
-    breakdown_p = pd.DataFrame(results["breakdown+"])[sorted(CONDITIONS) + ["micro avg", "macro avg"]].T[
-        ['f1-score','precision','recall','support']
-    ]
-    print(breakdown_p)
+    print("========== All 14 Conditions Breakdown (uncertain as positive) ==========")
+    subset_breakdown_p = build_subset_breakdown_df(results["subset_breakdown+"])
+    print(subset_breakdown_p)
     print("")
-    breakdown_p.to_csv(os.path.join(output_dir, "breakdown_p.csv"))
-    
-    print("========== CheXbert F1 (uncertain as negative) ==========")
-    breakdown_n = pd.DataFrame(results["breakdown-"])[sorted(CONDITIONS) + ["micro avg", "macro avg"]].T[
-        ['f1-score','precision','recall','support']
-    ]
-    print(breakdown_n)
+    subset_breakdown_p.to_csv(os.path.join(output_dir, "breakdown_selected_p.csv"))
+
+    print("========== All 14 Conditions Breakdown (uncertain as negative) ==========")
+    subset_breakdown_n = build_subset_breakdown_df(results["subset_breakdown-"])
+    print(subset_breakdown_n)
     print("")
-    breakdown_n.to_csv(os.path.join(output_dir, "breakdown_n.csv"))
+    subset_breakdown_n.to_csv(os.path.join(output_dir, "breakdown_selected_n.csv"))
 
     if report_chexbert_f1:
         print("========== CheXbert F1 ==========")

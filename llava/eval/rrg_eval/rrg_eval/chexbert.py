@@ -12,7 +12,7 @@ from huggingface_hub import hf_hub_download
 from tqdm import tqdm
 from sklearn.metrics import precision_recall_fscore_support
 
-from rrg_eval.factuality_utils import CheXbert_CONDITIONS, CONDITIONS_5, map_to_binary
+from rrg_eval.factuality_utils import CheXbert_CONDITIONS, CONDITIONS_4, CONDITIONS_5, map_to_binary
 from rrg_eval.factuality_eval import (
     generate_classification_report,
     test
@@ -293,7 +293,7 @@ def evaluate(
         refs: List[str],
         include_original: bool = True,
         bootstrap_ci: bool = False,
-        save_breakdown: bool = False
+        save_breakdown: bool = True
     ):
     model = CheXbert()
     # [condition_size, num_samples]
@@ -349,6 +349,25 @@ def evaluate(
             vilmedic_cr5[key]["ci_l"] = bs.confidence_interval.low
             vilmedic_cr5[key]["ci_h"] = bs.confidence_interval.high
 
+    # Vilmedic CheXbert 4
+    conditions_4_index = np.where(np.isin(CheXbert_CONDITIONS, CONDITIONS_4))[0]
+    rets_4 = [rets[i] for i in conditions_4_index]
+    # [num_samples, condition_size]
+    binary_rets_4 = list(map(list, zip(*rets_4)))
+    vilmedic_cr4 = generate_classification_report(
+        y_pred=binary_rets_4[:len(preds)], y_true=binary_rets_4[len(preds):], target_names=CONDITIONS_4
+    )
+
+    if bootstrap_ci:
+        for key in ("micro", "macro"):
+            bs = bootstrap_confidence_interval(
+                binary_rets_4[:len(preds)], binary_rets_4[len(preds):], key
+            )
+            key = key + " avg"
+            vilmedic_cr4[key]["median"] = np.median(bs.bootstrap_distribution)
+            vilmedic_cr4[key]["ci_l"] = bs.confidence_interval.low
+            vilmedic_cr4[key]["ci_h"] = bs.confidence_interval.high
+
 
     rets_p = [list(map(lambda x: map_to_binary(x, "rrg+"), i)) for i in outputs]
 
@@ -388,6 +407,25 @@ def evaluate(
             vilmedic_cr5_p[key]["ci_l"] = bs.confidence_interval.low
             vilmedic_cr5_p[key]["ci_h"] = bs.confidence_interval.high
 
+    # Vilmedic CheXbert 4+
+    conditions_4_index = np.where(np.isin(CheXbert_CONDITIONS, CONDITIONS_4))[0]
+    rets_4_p = [rets_p[i] for i in conditions_4_index]
+    # [num_samples, condition_size]
+    binary_rets_4_p = list(map(list, zip(*rets_4_p)))
+    vilmedic_cr4_p = generate_classification_report(
+        y_pred=binary_rets_4_p[:len(preds)], y_true=binary_rets_4_p[len(preds):], target_names=CONDITIONS_4
+    )
+
+    if bootstrap_ci:
+        for key in ("micro", "macro"):
+            bs = bootstrap_confidence_interval(
+                binary_rets_4_p[:len(preds)], binary_rets_4_p[len(preds):], key
+            )
+            key = key + " avg"
+            vilmedic_cr4_p[key]["median"] = np.median(bs.bootstrap_distribution)
+            vilmedic_cr4_p[key]["ci_l"] = bs.confidence_interval.low
+            vilmedic_cr4_p[key]["ci_h"] = bs.confidence_interval.high
+
 
     cr = {}
     if include_original:
@@ -408,7 +446,44 @@ def evaluate(
         with open(save_breakdown, "w") as f:
             json.dump(breakdown, f, indent=2)
 
-    return vilmedic_cr, vilmedic_cr5, vilmedic_cr_p, vilmedic_cr5_p, cr
+    if bootstrap_ci:
+        subset_breakdown_n = bootstrap_breakdown_scores(
+            binary_rets[:len(preds)], binary_rets[len(preds):], CheXbert_CONDITIONS
+        )
+        subset_breakdown_p = bootstrap_breakdown_scores(
+            binary_rets_p[:len(preds)], binary_rets_p[len(preds):], CheXbert_CONDITIONS
+        )
+    else:
+        subset_breakdown_n = {
+            condition: {
+                "precision": vilmedic_cr[condition]["precision"],
+                "recall": vilmedic_cr[condition]["recall"],
+                "f1": vilmedic_cr[condition]["f1-score"],
+                "support": vilmedic_cr[condition]["support"],
+            }
+            for condition in CheXbert_CONDITIONS
+        }
+        subset_breakdown_p = {
+            condition: {
+                "precision": vilmedic_cr_p[condition]["precision"],
+                "recall": vilmedic_cr_p[condition]["recall"],
+                "f1": vilmedic_cr_p[condition]["f1-score"],
+                "support": vilmedic_cr_p[condition]["support"],
+            }
+            for condition in CheXbert_CONDITIONS
+        }
+
+    return (
+        vilmedic_cr,
+        vilmedic_cr5,
+        vilmedic_cr4,
+        vilmedic_cr_p,
+        vilmedic_cr5_p,
+        vilmedic_cr4_p,
+        cr,
+        subset_breakdown_n,
+        subset_breakdown_p,
+    )
 
 
 def evaluate2(hyps, refs):
